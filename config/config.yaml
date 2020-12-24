@@ -1,0 +1,36 @@
+topnet:
+    nfeat: 8
+    nlevels: 6
+    code_nfts: 256
+
+input_dim: 4096
+num_points: 2048
+hidden_dim: 128
+cat_name: 'chair'
+
+batch_size: 1
+learning_rate: 1e-4
+
+caching: False # turning off data cache makes dataloader slower; while turning on will consume large disk space
+
+data:
+    feature_cache: sdv_cache
+    fig_dir: figures
+    pcd_root: pcds 
+    train_txt: splits/train.txt
+    val_txt: splits/val.txt 
+
+beta:
+    concentration0: 0.05
+    concentration1: 0.01
+
+symmetry_factor: 1e-1
+recon_factor: 1e1
+
+hydra:
+    run:
+        dir: outputs/${cat_name}
+
+    sweep:
+        dir: multirun
+        subdir: ${cat_name}
