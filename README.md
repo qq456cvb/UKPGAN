@@ -20,11 +20,16 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 cd ../..
 ```
-5. Run 
+5. Open a separate terminal to monitor training process
+```
+visdom -port 1080
+```
+6. Run 
 ```
 python train.py
 ```
 ## Related Projects
+- [KeypointNet: A Large-scale 3D Keypoint Dataset Aggregated from Numerous Human Annotations](https://github.com/qq456cvb/KeypointNet)
 - [TopNet: Structural Point Cloud Decoder](https://github.com/lynetcha/completion3d)
 - [The Perfect Match: 3D Point Cloud Matching with Smoothed Densities](https://github.com/zgojcic/3DSmoothNet)
 ## Citation
