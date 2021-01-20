@@ -93,7 +93,7 @@ class Model(ModelDesc):
         loss_d = 0.
         loss_g = 0.
         if get_current_tower_context().is_training:
-            beta_dist = tf.distributions.Bernoulli(probs=self.cfg.beta.concentration1 / (self.cfg.beta.concentration1 + self.cfg.beta.concentration0), dtype=tf.float32)
+            beta_dist = tf.distributions.Beta(concentration1=self.cfg.beta.concentration1, concentration0=self.cfg.beta.concentration0)
                 
             with tf.variable_scope('GAN'):
                 real_z = beta_dist.sample(tf.shape(z))
