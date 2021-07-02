@@ -28,6 +28,14 @@ visdom -port 1080
 ```
 python train.py
 ```
+
+## Evaluation
+Once trained, to evaluate the IoU with human annotations, first download [KeypointNet](https://github.com/qq456cvb/KeypointNet) data (you may only download the category that you wish to evaluate), then run
+```
+python eval_iou.py
+```
+and modify ``kpnet_root`` and ``cat_name`` variables when necessary.
+
 ## Related Projects
 - [KeypointNet: A Large-scale 3D Keypoint Dataset Aggregated from Numerous Human Annotations](https://github.com/qq456cvb/KeypointNet)
 - [TopNet: Structural Point Cloud Decoder](https://github.com/lynetcha/completion3d)
