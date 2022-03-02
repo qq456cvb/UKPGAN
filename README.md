@@ -1,4 +1,4 @@
-# UKPGAN: Unsupervised KeyPoint GANeration.
+# UKPGAN: Unsupervised KeyPoint GANeration (Accepted to CVPR2022).
 
 This repo is a TensorFlow implementation of our work UKPGAN. UKPGAN is an **unsupervised** 3D keypoint detector where keypoints are detected so that they could reconstruct the original object shape. Note that our keypoint detector solely depends on local features and is both translational and rotational invariant.
 
