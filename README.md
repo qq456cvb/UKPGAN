@@ -3,7 +3,7 @@ UKPGAN: A General Self-Supervised Keypoint Detector
 </h1>
 
 <p align='center'>
-<img align="center" src='images/intro.jpg' width='70%'> </img>
+<img align="center" src='images/teaser.jpg' width='70%'> </img>
 </p>
 
 <div align="center">
