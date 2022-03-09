@@ -32,6 +32,8 @@ UKPGAN is a **self-supervised** 3D keypoint detector on both rigid/non-rigid obj
 # Contents
 - [Overview](#overview)
 - [Installation](#installation)
+- [Train on ShapeNet Models](#train-on-shapenet-models)
+- [Test on ShapeNet Models](#test-on-shapenet-models)
 - [Related Projects](#related-projects)
 - [Citation](#citation)
 # Overview
