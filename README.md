@@ -98,6 +98,15 @@ python eval_iou.py
 and modify ``kpnet_root`` and ``cat_name`` variables when necessary.
 </details>
 
+# Test on SMPL Models
+Coming soon.
+
+## Tracking SMPL Human Bodies with Keypoints
+Coming soon.
+
+# Registration on Real-world Scenarios
+Coming soon.
+
 # Related Projects
 - [KeypointNet: A Large-scale 3D Keypoint Dataset Aggregated from Numerous Human Annotations](https://github.com/qq456cvb/KeypointNet)
 - [TopNet: Structural Point Cloud Decoder](https://github.com/lynetcha/completion3d)
