@@ -3,8 +3,11 @@ import sys
 import os
 from tensorpack.callbacks.base import Callback
 from tensorpack.dataflow.base import RNGDataFlow
-from sdv_src.build import sdv
-from utils import naive_read_pcd
+if os.name == 'nt':
+    from sdv_src.build.Release import sdv
+else:
+    from sdv_src.build import sdv
+from utils import SMPLModel, naive_read_pcd, sample_vertex_from_mesh
 from tensorpack import *
 from glob import glob
 import visdom
@@ -32,7 +35,7 @@ name2id = {
     'table': '04379243'
 }
 
-class MyDataFlow(RNGDataFlow):
+class ShapeNetDataFlow(RNGDataFlow):
     def __init__(self, cfg, split, training):
         self.training = training
         self.cfg = cfg
@@ -77,10 +80,10 @@ class MyDataFlow(RNGDataFlow):
             yield pc, feature
 
             
-class VisDataFlow(MyDataFlow, Callback):
-    def __init__(self, *args):
+class VisDataFlow(ShapeNetDataFlow, Callback):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args)
-        self.vis = visdom.Visdom(port=1080)
+        self.vis = visdom.Visdom(port=kwargs['port'])
     
     def _trigger(self):
         z = []
@@ -157,5 +160,108 @@ class VisDataFlow(MyDataFlow, Callback):
             opts=dict(
                 markercolor=(rgb * 255).astype(np.int),
                 title='Embedding Prediction (Model 2)'
+            ),
+        )
+        
+
+class SMPLDataFlow(RNGDataFlow):
+    def __init__(self, cfg, training, len):
+        self.training = training
+        self.cfg = cfg
+        self.smpl = SMPLModel(os.path.join(os.path.dirname(__file__), 'data/model.pkl'))
+        self.len = len
+
+    def _setup_graph(self):
+        self.predictor = self.trainer.get_predictor(['pc', 'pc_feature'], ['encoder/z', 'encoder/feature', 'recon_pc'])
+
+    def __len__(self):
+        return self.len
+
+    def __iter__(self):
+        # smpl dataflow
+        for _ in range(len(self)):
+            pose = (np.random.rand(*self.smpl.pose_shape) - 0.5) * 0.4
+            beta = (np.random.rand(*self.smpl.beta_shape) - 0.5) * 0.06
+            trans = np.zeros(self.smpl.trans_shape)
+            self.smpl.set_params(beta=beta, pose=pose, trans=trans)
+            pc, _, _, _, _ = sample_vertex_from_mesh(self.smpl.verts, self.smpl.faces, num_samples=self.cfg.num_points)
+            
+            feature = np.array(sdv.compute(pc)).astype(np.float32)
+            
+            yield pc, feature
+
+
+class VisSMPLDataFlow(SMPLDataFlow, Callback):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args)
+        self.vis = visdom.Visdom(port=kwargs['port'])
+    
+    def _trigger(self):
+        z = []
+        emb = []
+        recon = []
+        pcs = []
+        features = []
+        for _ in range(2):
+            pose = (np.random.rand(*self.smpl.pose_shape) - 0.5) * 0.4
+            beta = (np.random.rand(*self.smpl.beta_shape) - 0.5) * 0.06
+            trans = np.zeros(self.smpl.trans_shape)
+            self.smpl.set_params(beta=beta, pose=pose, trans=trans)
+            pc, _, _, _, _ = sample_vertex_from_mesh(self.smpl.verts, self.smpl.faces, num_samples=self.cfg.num_points)
+            feature = np.array(sdv.compute(pc)).astype(np.float32)
+            
+            output = self.predictor(pc[None], feature[None])
+            
+            z.append(output[0][0])
+            emb.append(output[1][0])
+            recon.append(output[2][0])
+            
+            pcs.append(pc)
+            features.append(feature)
+            
+        prob = z[0] > 0.5
+        label = np.ones((pcs[0].shape[0],), dtype=np.int)
+        if np.sum(prob.astype(np.float32)) > 0:
+            label[prob] = 2
+        
+        self.vis.scatter(
+            X=pcs[0],
+            Y=label,
+            win=1,
+        )
+        
+        self.vis.scatter(
+            X=recon[0],
+            win=2
+        )
+        
+        self.vis.scatter(
+            X=pcs[0],
+            win=3,
+            opts=dict(
+                markercolor=(z[0] * 255).astype(np.int)
+            ),
+        )
+        
+        
+        pca = PCA(n_components=3)
+        scaler = MinMaxScaler()
+        rgb = pca.fit_transform(emb[0])
+        rgb = scaler.fit_transform(rgb)
+        self.vis.scatter(
+            X=pcs[0],
+            win=4,
+            opts=dict(
+                markercolor=(rgb * 255).astype(np.int)
+            ),
+        )
+        
+        rgb = pca.transform(emb[1])
+        rgb = np.clip(scaler.transform(rgb), 0., 1.)
+        self.vis.scatter(
+            X=pcs[1],
+            win=5,
+            opts=dict(
+                markercolor=(rgb * 255).astype(np.int)
             ),
         )

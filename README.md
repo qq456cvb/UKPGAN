@@ -34,6 +34,10 @@ UKPGAN is a **self-supervised** 3D keypoint detector on both rigid/non-rigid obj
 - [Installation](#installation)
 - [Train on ShapeNet Models](#train-on-shapenet-models)
 - [Test on ShapeNet Models](#test-on-shapenet-models)
+- [Train on SMPL Models](#train-on-smpl-models)
+- [Test on SMPL Models](#test-on-smpl-models)
+- [Test on Real-world Scenes](#test-on-real-world-scenes)
+- [Pretrained Models](#pretrained-models)
 - [Related Projects](#related-projects)
 - [Citation](#citation)
 # Overview
@@ -62,6 +66,7 @@ cd ../..
 ```
 </details>
 
+If you want to visualize keypoint results, you will need to install ``open3d``.
 # Train on ShapeNet Models
 <details>
 <summary><b>Prepare Data</b></summary>
@@ -81,9 +86,9 @@ Open a separate terminal to monitor training process:
 ```
 visdom -port 1080
 ```
-Then run:
+Then run (e.g., chair):
 ```
-python train.py
+python train.py cat_name=chair
 ```
 </details>
 
@@ -93,10 +98,67 @@ python train.py
 
 Once trained, to evaluate the IoU with human annotations, first download [KeypointNet](https://github.com/qq456cvb/KeypointNet) data (you may only download the category that you wish to evaluate), then run
 ```
-python eval_iou.py
+python eval_iou.py --kpnet_root /your/kpnet/root
 ```
-and modify ``kpnet_root`` and ``cat_name`` variables when necessary.
 </details>
+
+<details>
+<summary><b>Visualization</b></summary>
+
+To test and visualize on ShapeNet models, run:
+```
+python visualize.py --type shapenet --nms --nms_radius 0.1
+```
+</details>
+
+# Train on SMPL Models
+<details>
+<summary><b>Prepare Data</b></summary>
+
+You should register on [SMPL](https://smpl.is.tue.mpg.de/) website and download the model. We follow [this repo](https://github.com/CalciferZh/SMPL#usage) to pre-process the model to generate ``model.pkl``. Place ``model.pkl`` into ``data/model.pkl``.
+</details>
+
+<details>
+<summary><b>Start Training</b></summary>
+
+The following command start training on SMPL models on the fly:
+```
+python train.py cat_name=smpl symmetry_factor=0
+```
+</details>
+
+# Test on SMPL Models
+
+<details>
+<summary><b>Visualization</b></summary>
+
+To test and visualize on SMPL models, run:
+```
+python visualize.py --type smpl --nms --nms_radius 0.2 --kp_num 10
+```
+</details>
+
+# Test on Real-world Scenes
+
+For this task, we use the model that is trained on a large collection of ShapeNet models (across 10+ categories), called ``universal``.
+<details>
+<summary><b>Prepare Data</b></summary>
+
+You will need to download data from [3DMatch](http://3dmatch.cs.princeton.edu/#geometric-registration-benchmark). We also provide a demo scene for visualization.
+</details>
+<details>
+
+<summary><b>Visualization</b></summary>
+
+
+To test and visualize on 3DMatch, run:
+```
+python visualize.py --type 3dmatch --nms --nms_radius 0.05
+```
+</details>
+
+# Pretrained Models
+We provide pretrained models on [Google Drive](https://drive.google.com/drive/folders/1yaf8rzYvfz1T3Ii5oll7afdt66LX1UXy?usp=sharing).
 
 # Related Projects
 - [KeypointNet: A Large-scale 3D Keypoint Dataset Aggregated from Numerous Human Annotations](https://github.com/qq456cvb/KeypointNet)

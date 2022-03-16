@@ -55,7 +55,7 @@ def SmoothNet(x, cfg):
           .FullyConnected('fc2', 256, activation=tf.nn.relu)
           .FullyConnected('fc3', 129, activation=None))()
 
-    x = tf.reshape(x, tf.stack([batch_size, cfg.num_points, 129]))
+    x = tf.reshape(x, tf.stack([batch_size, -1, 129]))
     return x
     
     
@@ -67,8 +67,8 @@ class Model(ModelDesc):
         """
         Define all the inputs (with type, shape, name) that the graph will need.
         """
-        return [tf.placeholder(tf.float32, [None, self.cfg.num_points, 3], name='pc'),
-                tf.placeholder(tf.float32, [None, self.cfg.num_points, self.cfg.input_dim], name='pc_feature')]
+        return [tf.placeholder(tf.float32, [None, None, 3], name='pc'),
+                tf.placeholder(tf.float32, [None, None, self.cfg.input_dim], name='pc_feature')]
 
     @auto_reuse_variable_scope
     def discriminator(self, logits):

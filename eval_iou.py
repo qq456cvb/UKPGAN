@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import os
 from glob import glob
@@ -7,10 +8,14 @@ from sklearn import neighbors
 from sklearn.utils.graph import graph_shortest_path
 import pickle
 from tqdm import tqdm
-from tensorpack import *
 from omegaconf import OmegaConf
 from dataflow import load_sdv_feature
-from sdv_src.build import sdv
+from tensorpack.predict import OfflinePredictor, PredictConfig
+from tensorpack.tfutils import SaverRestore
+if os.name == 'nt':
+    from sdv_src.build.Release import sdv
+else:
+    from sdv_src.build import sdv
 import tensorflow as tf
 from model import Model
 
@@ -145,8 +150,9 @@ name2id = {
 }
 
 if __name__ == "__main__":
-    kpnet_root = '/kpnet/root'  # MODIFY this
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--kpnet_root', default='/kpnet/root', help='KeypointNet data root')
+    args = parser.parse_args()
     
     f = open('iou_test.txt', 'w')
     for cat_name in ['airplane', 'chair', 'table']:
@@ -154,7 +160,7 @@ if __name__ == "__main__":
         f.write('\n')
         
         tf.reset_default_graph()
-        test_dataset = KeypointDataset(kpnet_root, name2id[cat_name], 'splits/test.txt')
+        test_dataset = KeypointDataset(args.kpnet_root, name2id[cat_name], 'splits/test.txt')
         
         cfg = OmegaConf.load('config/config.yaml')
         cfg.cat_name = cat_name

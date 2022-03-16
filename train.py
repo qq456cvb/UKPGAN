@@ -10,7 +10,7 @@ from tensorpack.train.interface import launch_train_with_config
 from tensorpack.train.trainers import SimpleTrainer
 from tensorpack.utils import logger
 from model import Model
-from dataflow import VisDataFlow, MyDataFlow
+from dataflow import SMPLDataFlow, VisDataFlow, ShapeNetDataFlow, VisSMPLDataFlow
 from multiprocessing import cpu_count
 import hydra
 from shutil import copyfile
@@ -20,7 +20,7 @@ import subprocess
 
 @hydra.main(config_path='config', config_name='config')
 def main(cfg):
-    print(cfg.pretty())
+    print(cfg)
     
     tf.reset_default_graph()
     
@@ -28,9 +28,13 @@ def main(cfg):
 
     copyfile(hydra.utils.to_absolute_path('model.py'), 'model.py')
     copyfile(hydra.utils.to_absolute_path('dataflow.py'), 'dataflow.py')
-        
-    train_df = MyDataFlow(cfg, cfg.data.train_txt, True)
-    val_df = VisDataFlow(cfg, cfg.data.val_txt, False)
+    
+    if cfg.cat_name == 'smpl':
+        train_df = SMPLDataFlow(cfg, True, 1000)
+        val_df = VisSMPLDataFlow(cfg, True, 1000, port=1080)
+    else:
+        train_df = ShapeNetDataFlow(cfg, cfg.data.train_txt, True)
+        val_df = VisDataFlow(cfg, cfg.data.val_txt, False, port=1080)
     
     config = TrainConfig(
         model=Model(cfg),
