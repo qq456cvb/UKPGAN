@@ -6,7 +6,7 @@ topnet:
 encoder:
     emb_dim: 128
     ch_mid: 64
-    num_layers: 5
+    num_layers: 2
     radius: 0.15
 
 discriminator:
@@ -15,7 +15,7 @@ discriminator:
 num_points: 2048
 cat_name: 'chair'
 
-batch_size: 2
+batch_size: 1
 learning_rate: 1e-4
 max_epoch: 10
 num_workers: 10

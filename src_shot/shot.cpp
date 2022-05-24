@@ -24,8 +24,8 @@ py::array_t<float> estimate_normal(py::array_t<float> pc, double normal_r)
 
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normalEstimation;
 	normalEstimation.setInputCloud(cloud);
-//	normalEstimation.setRadiusSearch(normal_r);
-	normalEstimation.setKSearch(40);
+	normalEstimation.setRadiusSearch(normal_r);
+	// normalEstimation.setKSearch(40);
 	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
 	normalEstimation.setSearchMethod(kdtree);
 	normalEstimation.compute(*normals);
@@ -65,8 +65,8 @@ py::array_t<float> compute(py::array_t<float> pc, double normal_r, double shot_r
 	// Estimate the normals.
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normalEstimation;
 	normalEstimation.setInputCloud(cloud);
-//	normalEstimation.setRadiusSearch(normal_r);
-	normalEstimation.setKSearch(40);
+	normalEstimation.setRadiusSearch(normal_r);
+	// normalEstimation.setKSearch(40);
 	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
 	normalEstimation.setSearchMethod(kdtree);
 	normalEstimation.compute(*normals);
@@ -94,6 +94,6 @@ py::array_t<float> compute(py::array_t<float> pc, double normal_r, double shot_r
 
 
 PYBIND11_MODULE(shot, m) {
-    m.def("compute", &compute, py::arg("pc"), py::arg("normal_r")=0.15, py::arg("shot_r")=0.15);
+    m.def("compute", &compute, py::arg("pc"), py::arg("normal_r")=0.1, py::arg("shot_r")=0.17);
 	m.def("estimate_normal", &estimate_normal, py::arg("pc"), py::arg("normal_r")=0.1);
 }

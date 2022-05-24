@@ -1,3 +1,4 @@
+from turtle import forward
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,7 +14,7 @@ class Discriminator(nn.Module):
             self.fcs.append(
                 nn.Sequential(
                    nn.Linear(chs[i], chs[i + 1]),
-                   nn.ReLU() 
+                   nn.Identity() if i == len(chs) - 2 else nn.ReLU() 
                 )
             )
         
@@ -24,53 +25,21 @@ class Discriminator(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, radius, num_layers, ch_mid, ch_out):
+    def __init__(self, num_layers, ch_in, ch_mid, ch_out):
         super().__init__()
-        self.radius = radius
-        self.layers = nn.ModuleList()
-        self.layer_in = nn.Sequential(
-            nn.Linear(6, ch_mid),
-            nn.LeakyReLU(),
-            nn.Linear(ch_mid, ch_mid),
-            # nn.LeakyReLU(),
-            # nn.Linear(ch_mid, ch_mid),
-            # nn.LeakyReLU(),
-            # nn.Linear(ch_mid, ch_mid),
-            # nn.LeakyReLU(),
-            # nn.Linear(ch_mid, ch_mid)
+        self.layers = nn.ModuleList(
+            [nn.Linear(ch_in, ch_mid), nn.ReLU()]
         )
-        self.layer_out = nn.Linear(ch_mid, ch_out)
-        self.trans = nn.ModuleList()
         for _ in range(num_layers): 
-            self.layers.append(
-                nn.Sequential(
-                    nn.Linear(ch_mid, ch_mid),
-                    nn.LeakyReLU(),
-                    nn.Linear(ch_mid, ch_mid),
-                    # nn.LeakyReLU(),
-                    # nn.Linear(ch_mid, ch_mid),
-                    # nn.LeakyReLU(),
-                    # nn.Linear(ch_mid, ch_mid),
-                    # nn.LeakyReLU(),
-                    # nn.Linear(ch_mid, ch_mid)
-                )
-            )
-            self.trans.append(nn.Linear(2 * ch_mid, ch_mid))
-    
-    def forward(self, pc):
-        nbr_idx = query_ball_point(self.radius, 128, pc, pc)  # B x N x K
-        
-        nbr_pts = torch.gather(pc.unsqueeze(-3).expand(*pc.shape[:-1], *pc.shape[-2:]), -2, nbr_idx[..., None].expand(*nbr_idx.shape, pc.shape[-1]))
-        nbr_feats = rifeat(nbr_pts, pc[:, :, None])
-        feat = torch.mean(self.layer_in(nbr_feats), -2)
-        for i, layer in enumerate(self.layers):
-            nbr_feats = torch.gather(feat.unsqueeze(-3).expand(*feat.shape[:-1], *feat.shape[-2:]), -2, nbr_idx[..., None].expand(*nbr_idx.shape, feat.shape[-1]))
-            nbr_feats = layer(nbr_feats)
-            feat_max = nbr_feats.mean(-2)
-            feat = self.trans[i](torch.cat([feat, feat_max], -1))
-        feat = self.layer_out(feat)
-        return feat
+            self.layers.append(nn.Linear(ch_mid, ch_mid))
+            self.layers.append(nn.ReLU())
 
+        self.layers.append(nn.Linear(ch_mid, ch_out))
+        
+    def forward(self, x):
+        for i, layer in enumerate(self.layers):
+            x = layer(x)
+        return x
 
 class TopNet(nn.Module):
     def __init__(self, cfg):
@@ -82,7 +51,7 @@ class TopNet(nn.Module):
         self.tarch = get_arch(cfg.topnet.nlevels, cfg.num_points)
         self.npoints = cfg.num_points
         level0 = nn.Sequential(
-            mlp(self.code_nfts, [256, 64, self.nfeat * int(self.tarch[0])], bn=True),
+            mlp(self.code_nfts, [256, 64, self.nfeat * int(self.tarch[0])], bn=False),
             nn.Tanh()
         )
         self.levels = nn.ModuleList([level0])
@@ -93,7 +62,7 @@ class TopNet(nn.Module):
                 bn = False
             else:
                 nout = self.nout
-                bn = True
+                bn = False
                 
             level = nn.Sequential(
                 self.create_level(i, nin, nout, bn),
@@ -127,8 +96,7 @@ class TopNet(nn.Module):
 class Model(nn.Module):
     def __init__(self, cfg):
         super().__init__()
-        # self.encoder = Encoder(cfg.encoder.radius, cfg.encoder.num_layers, cfg.encoder.ch_mid, cfg.encoder.emb_dim + 1)
-        
+        self.encoder = Encoder(cfg.encoder.num_layers, 352, cfg.encoder.ch_mid, cfg.encoder.emb_dim + 1)
         self.beta_dist = torch.distributions.Beta(concentration1=cfg.beta.concentration1, concentration0=cfg.beta.concentration0)
         self.discriminator = Discriminator(cfg.discriminator.chs)
         self.fc_topnet = nn.Linear(cfg.encoder.emb_dim * 2, cfg.topnet.code_nfts)
@@ -141,18 +109,18 @@ class Model(nn.Module):
         nearest_idx = torch.argmin(dist2sym, -1)  # B x N
         
         # import pdb; pdb.set_trace()
-        embedding = self.encoder(pc)
+        embedding = self.encoder(pc_feature)
         z = torch.sigmoid(embedding[..., -1])
         emb = F.normalize(embedding[..., :-1], dim=-1)
         # import pdb; pdb.set_trace()
         if self.training:
             real_z = self.beta_dist.sample(z.shape).to(z)
-            fake_val = self.discriminator(z)
+            fake_val = self.discriminator(z.detach())
             real_val = self.discriminator(real_z)
             loss_gan = torch.mean(fake_val - real_val)
             
-            z_interp = z + torch.rand_like(z) * (real_z - z)
-            gradient_f = torch.autograd.grad(torch.sum(self.discriminator(z_interp)), z_interp)[0]
+            z_interp = z + torch.rand(z.shape[0], 1).to(z) * (real_z - z)
+            gradient_f = torch.autograd.grad(torch.sum(self.discriminator(z_interp)), z_interp, create_graph=True, retain_graph=True, only_inputs=True)[0]
             loss_gp = torch.mean(torch.maximum(torch.norm(gradient_f, dim=-1) - 1, torch.zeros((*gradient_f.shape[:-1],)).to(gradient_f)) ** 2)
             
             code = torch.cat([torch.max(torch.relu(emb) * z[..., None], 1)[0], torch.max(torch.relu(-emb) * z[..., None], 1)[0]], -1)

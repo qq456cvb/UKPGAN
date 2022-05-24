@@ -1,9 +1,11 @@
+from omegaconf import OmegaConf
 from torch.utils.data import Dataset
 import hydra
 from glob import glob
 import os
 import numpy as np
 from src_shot.build import shot
+from src_sdv.build import sdv
 
 
 def naive_read_pcd(path):
@@ -16,8 +18,8 @@ def naive_read_pcd(path):
     lines = lines[idx:]
     lines = [line.rstrip().split(' ') for line in lines]
     data = np.asarray(lines)
-    pc = np.array(data[:, :3], dtype=np.float)
-    colors = np.array(data[:, -1], dtype=np.int)
+    pc = np.array(data[:, :3], dtype=np.float32)
+    colors = np.array(data[:, -1], dtype=int)
     colors = np.stack([(colors >> 16) & 255, (colors >> 8) & 255, colors & 255], -1)
     return pc, colors
 
@@ -47,7 +49,15 @@ class ShapeNetDataset(Dataset):
         return len(self.pcds)
 
     def __getitem__(self, idx):
-        pc = self.pcds[idx]
-        pc_feature = shot.compute(pc)
+        pc = self.pcds[idx].astype(np.float32)
+        pc_feature = shot.compute(pc, 0.15, 0.15).reshape(-1, 352)
         pc_feature[np.isnan(pc_feature)] = 0
-        return pc.astype(np.float32), pc_feature.astype(np.float32)
+        # pc_feature = np.asarray(sdv.compute(pc, 0.15)).reshape(-1, 16, 16, 16).astype(np.float32)
+        return pc, pc_feature
+    
+
+if __name__ == '__main__':
+    cfg = OmegaConf.load('config/config.yaml')
+    ds = ShapeNetDataset(cfg, cfg.data.val_txt)
+    for d in ds:
+        print(d[1].shape, d[1].max(), d[1].min())
