@@ -28,7 +28,14 @@ CVPR 2022
 </div>
  
 UKPGAN is a **self-supervised** 3D keypoint detector on both rigid/non-rigid objects and real scenes. Note that our keypoint detector solely depends on local features and is both translational and rotational invariant.
-  
+
+ # News
+- **[2022.05]** **Pytorch** version is now supported! Try it in the branch `pytorch`!
+- **[2022.05]** **SHOT** descriptor is now supported with Pytorch, and it is much faster than the original PerfectMatch desciptor!
+
+# Change Logs
+- [2022.05.24] Upload Pytorch version of code and SHOT descriptors.
+
 # Contents
 - [Overview](#overview)
 - [Installation](#installation)
@@ -38,8 +45,10 @@ UKPGAN is a **self-supervised** 3D keypoint detector on both rigid/non-rigid obj
 - [Test on SMPL Models](#test-on-smpl-models)
 - [Test on Real-world Scenes](#test-on-real-world-scenes)
 - [Pretrained Models](#pretrained-models)
+- [Pytorch Version](#pytorch-version)
 - [Related Projects](#related-projects)
 - [Citation](#citation)
+
 # Overview
 This repo is a TensorFlow implementation of our work UKPGAN. 
   
@@ -159,6 +168,17 @@ python visualize.py --type 3dmatch --nms --nms_radius 0.05
 
 # Pretrained Models
 We provide pretrained models on [Google Drive](https://drive.google.com/drive/folders/1yaf8rzYvfz1T3Ii5oll7afdt66LX1UXy?usp=sharing).
+
+# Pytorch Version
+We have now implemented the Pytorch version of UKPGAN, and can be trained with SHOT descriptors, which are much faster than the PerfectMatch descriptors!
+<details>
+<summary><b>Training on ShapeNet</b></summary>
+Directly clone the repo and run `git checkout pytorch` to switch to the pytorch version. Then run `python train.py`.
+You would get the following results when trained on ShapeNet chairs:
+<p align='center'>
+<img align="center" src='images/plotchair.png' width='50%'> </img>
+</p>
+</details>
 
 # Related Projects
 - [KeypointNet: A Large-scale 3D Keypoint Dataset Aggregated from Numerous Human Annotations](https://github.com/qq456cvb/KeypointNet)
