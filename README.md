@@ -20,9 +20,9 @@ CVPR 2022
 <a href='https://qq456cvb.github.io/projects/ukpgan'>
   <img src='https://img.shields.io/badge/Project-Page-green?style=flat&logo=googlechrome&logoColor=green' alt='Project Page'>
 </a>
-  <!-- <a href='https://colab.research.google.com/'>
-    <img src='https://colab.research.google.com/assets/colab-badge.svg' alt='Google Colab'>
-  </a> -->
+<a href='https://youtu.be/IyGzkdR5MLU'>
+<img src='https://img.shields.io/badge/Youtube-Video-red?style=flat&logo=youtube&logoColor=red' alt='Video'/>
+</a>
 <br>
 </h3>
 </div>
