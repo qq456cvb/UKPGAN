@@ -167,7 +167,7 @@ python visualize.py --type 3dmatch --nms --nms_radius 0.05
 </details>
 
 # Pretrained Models
-We provide pretrained models on [Google Drive](https://drive.google.com/drive/folders/1yaf8rzYvfz1T3Ii5oll7afdt66LX1UXy?usp=sharing).
+We provide pretrained models on [Google Drive](https://drive.google.com/drive/folders/19nrm_OlkfX2VXSZ775aTGEy41p-11SwU?usp=sharing).
 
 # Pytorch Version
 We have now implemented the Pytorch version of UKPGAN, and can be trained with SHOT descriptors, which are much faster than the PerfectMatch descriptors!
