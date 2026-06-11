@@ -33,6 +33,13 @@ UKPGAN is a **self-supervised** 3D keypoint detector on both rigid/non-rigid obj
 - **[2022.05]** **Pytorch** version is now supported! Try it in the branch `pytorch`!
 - **[2022.05]** **SHOT** descriptor is now supported with Pytorch, and it is much faster than the original PerfectMatch desciptor!
 
+<!-- README refined by Cursor -->
+
+## Data and Artifact Mirrors
+
+Hugging Face mirrors available:
+- Pretrained models: [https://huggingface.co/qq456cvb/UKPGAN](https://huggingface.co/qq456cvb/UKPGAN) (`pretrained_models`).
+
 # Change Logs
 - [2022.05.24] Upload Pytorch version of code and SHOT descriptors.
 
