@@ -33,13 +33,6 @@ UKPGAN is a **self-supervised** 3D keypoint detector on both rigid/non-rigid obj
 - **[2022.05]** **Pytorch** version is now supported! Try it in the branch `pytorch`!
 - **[2022.05]** **SHOT** descriptor is now supported with Pytorch, and it is much faster than the original PerfectMatch desciptor!
 
-<!-- README refined by Cursor -->
-
-## Data and Artifact Mirrors
-
-Hugging Face mirrors available:
-- Pretrained models: [https://huggingface.co/qq456cvb/UKPGAN](https://huggingface.co/qq456cvb/UKPGAN) (`pretrained_models`).
-
 # Change Logs
 - [2022.05.24] Upload Pytorch version of code and SHOT descriptors.
 
@@ -87,7 +80,11 @@ If you want to visualize keypoint results, you will need to install ``open3d``.
 <details>
 <summary><b>Prepare Data</b></summary>
 
-Download ShapeNet point clouds from [KeypointNet](https://github.com/qq456cvb/KeypointNet) and unzip **pcds** folder to the root.
+Download ShapeNet point clouds (`pcds.zip`) from the [KeypointNet dataset on Hugging Face](https://huggingface.co/datasets/qq456cvb/KeypointNet) and unzip the **pcds** folder to the root:
+
+```
+hf download qq456cvb/KeypointNet pcds.zip --repo-type dataset --local-dir .
+```
 </details>
 <details>
 <summary><b>Category Configuration</b></summary>
@@ -112,7 +109,7 @@ python train.py cat_name=chair
 <details>
 <summary><b>Evaluate IoU</b></summary>
 
-Once trained, to evaluate the IoU with human annotations, first download [KeypointNet](https://github.com/qq456cvb/KeypointNet) data (you may only download the category that you wish to evaluate), then run
+Once trained, to evaluate the IoU with human annotations, first download [KeypointNet](https://huggingface.co/datasets/qq456cvb/KeypointNet) annotations (you may only download the category that you wish to evaluate), then run
 ```
 python eval_iou.py --kpnet_root /your/kpnet/root
 ```
@@ -174,7 +171,11 @@ python visualize.py --type 3dmatch --nms --nms_radius 0.05
 </details>
 
 # Pretrained Models
-We provide pretrained models on [Google Drive](https://drive.google.com/drive/folders/19nrm_OlkfX2VXSZ775aTGEy41p-11SwU?usp=sharing).
+We provide pretrained models (`airplane`, `chair`, `table`, `smpl` and `universal`) on [Hugging Face](https://huggingface.co/qq456cvb/UKPGAN) (mirror: [Google Drive](https://drive.google.com/drive/folders/19nrm_OlkfX2VXSZ775aTGEy41p-11SwU?usp=sharing)). The checkpoints are laid out as `outputs/<category>/tflogs/`, exactly where the test scripts look for them, so you can download them directly into the repo root:
+
+```
+hf download qq456cvb/UKPGAN --local-dir .
+```
 
 # Pytorch Version
 We have now implemented the Pytorch version of UKPGAN, and can be trained with SHOT descriptors, which are much faster than the PerfectMatch descriptors!
