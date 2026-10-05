@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this code or data in your research, please cite the paper below."
+title: "UKPGAN: A General Self-Supervised Keypoint Detector"
+authors:
+  - family-names: "You"
+    given-names: "Yang"
+    orcid: "https://orcid.org/0000-0003-0125-0792"
+  - family-names: "Liu"
+    given-names: "Wenhai"
+  - family-names: "Ze"
+    given-names: "Yanjie"
+  - family-names: "Li"
+    given-names: "Yong-Lu"
+  - family-names: "Wang"
+    given-names: "Weiming"
+  - family-names: "Lu"
+    given-names: "Cewu"
+repository-code: "https://github.com/qq456cvb/UKPGAN"
+url: "https://qq456cvb.github.io/projects/ukpgan"
+preferred-citation:
+  type: conference-paper
+  title: "UKPGAN: A General Self-Supervised Keypoint Detector"
+  authors:
+    - family-names: "You"
+      given-names: "Yang"
+      orcid: "https://orcid.org/0000-0003-0125-0792"
+    - family-names: "Liu"
+      given-names: "Wenhai"
+    - family-names: "Ze"
+      given-names: "Yanjie"
+    - family-names: "Li"
+      given-names: "Yong-Lu"
+    - family-names: "Wang"
+      given-names: "Weiming"
+    - family-names: "Lu"
+      given-names: "Cewu"
+  collection-title: "Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)"
+  conference:
+    name: "CVPR 2022"
+  year: 2022
+  url: "https://arxiv.org/abs/2011.11974"
+  identifiers:
+    - type: other
+      value: "arXiv:2011.11974"
+      description: "arXiv preprint"
